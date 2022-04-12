@@ -15,9 +15,11 @@ namespace GithubProjectDownloader
         {
             Analyzer analyzer = new Analyzer();
             //Reading All ProjectInfo
-            analyzer.Test();
             List<ProjectInfo> projectList = analyzer.ReadAllProjectInfo();
             analyzer.DownloadProjects(projectList);
+
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadLine();
         }
     }
 }

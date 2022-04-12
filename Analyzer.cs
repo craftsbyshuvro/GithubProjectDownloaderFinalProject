@@ -23,25 +23,23 @@ namespace GithubProjectDownloader
 
         public List<ProjectInfo> ReadAllProjectInfo()
         {
-            var projectFile = new LinqToExcel.ExcelQueryFactory(@"D:\Study\Final Project\Dataset\Metadata\10Projects.csv");
+            var projectFile = new LinqToExcel.ExcelQueryFactory(@"D:\Dataset\Metadata\common-io.csv");
 
-            List<ProjectInfo> projectList = (from row in projectFile.Worksheet("10Projects")
+            List<ProjectInfo> projectList = (from row in projectFile.Worksheet("common-io")
                                              let item = new ProjectInfo()
                                              {
-                                                 Id = row["id"].Cast<string>(),
-                                                 Name = row["name"].Cast<string>(),
-                                                 URL = row["url"].Cast<string>()
+                                                 Id = row["id"].Cast<int>(),
+                                                 Package = row["package_name"].Cast<string>(),
+                                                 PartialURL = row["name_with_owner"].Cast<string>(),
+                                                 StarCount = row["stars_count"].Cast<int>(),
+                                                 ContributorCount = row["contributors_count"].Cast<int>(),
+                                                 DateCreated = row["created_date"].Cast<string>()
                                              }
                                              select item).ToList();
 
             return projectList;
         }
-
-        public void Test()
-        {
-
-
-        }
+         
 
         public List<ProjectDetails> DownloadProjects(List<ProjectInfo> projectList)
         {
@@ -50,21 +48,18 @@ namespace GithubProjectDownloader
 
             foreach (var item in projectList)
             {
-                string projectUrl = item.URL;
                 try
                 {
                     int currentRow = rowCount++;
-                    Console.WriteLine(currentRow + " " + item.Name + " started");
+                    Console.WriteLine(currentRow + " " + item.PartialURL + " started");
 
-
-                    //Creating Directory for the project
-                    string vProjectDirectory = @"D:\Study\Final Project\Dataset\Projects\" + item.Name;
+                     //Creating Directory for the project
+                    string vProjectDirectory = @"D:\Dataset\Projects\" + item.PartialURL.Replace("/","-");
                     System.IO.Directory.CreateDirectory(vProjectDirectory);
 
-                    string toBeSearched = "/repos/";
-                    string projectName = projectUrl.Substring(projectUrl.IndexOf(toBeSearched) + toBeSearched.Length);
-                    string vGitCloneUrl = "https://github.com/" + projectName + ".git";
 
+                    string vGitCloneUrl = "https://github.com/" + item.PartialURL + ".git";
+                    
                     Task.Run(() =>
                     {
                         try
@@ -76,14 +71,14 @@ namespace GithubProjectDownloader
                         {
                             string ErrMsg = ex.GetBaseException().Message;
                             Console.WriteLine(ErrMsg);
-                            File.AppendAllText(@"D:\Study\Final Project\Dataset\Projects\DownloadException.txt", item.Name + " <==>" + ErrMsg + Environment.NewLine);
+                            File.AppendAllText(@"D:\Dataset\Projects\DownloadException.txt", "Package: " + item.Package+ " Project: "+ item.PartialURL + " <==>" + ErrMsg + Environment.NewLine);
 
                         }
 
                     }).Wait();
 
-
-                    Console.WriteLine(currentRow + " " + item.Name + " finished");
+                    
+                    Console.WriteLine(currentRow + " " + item.PartialURL + " finished");
                 }
                 catch (Exception ex)
                 {

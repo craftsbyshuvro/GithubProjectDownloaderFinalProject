@@ -8,9 +8,12 @@ namespace GithubProjectDownloader.Models
 {
     public class ProjectInfo
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Language { get; set; }
-        public string URL { get; set; }
+        public int Id { get; set; }
+        public string Package { get; set; }
+        public string PartialURL { get; set; }
+        public string FullURL { get; set; }
+        public int StarCount { get; set; }
+        public int ContributorCount { get; set; }
+        public string DateCreated { get; set; }
     }
 }
